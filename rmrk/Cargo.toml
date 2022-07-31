@@ -5,7 +5,6 @@ authors = ["[your_name] <[your_email]>"]
 edition = "2021"
 
 [dependencies]
-serde = { version = "1.0.136", optional = true, features = ["derive"] }
 ink_primitives = { version = "3", default-features = false }
 ink_metadata = { version = "3", default-features = false, features = ["derive"], optional = true }
 ink_env = { version = "3", default-features = false }
@@ -15,10 +14,6 @@ ink_prelude = { version = "3", default-features = false }
 
 scale = { package = "parity-scale-codec", version = "3", default-features = false, features = ["derive"] }
 scale-info = { version = "2", default-features = false, features = ["derive"], optional = true }
-
-frame-support = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.26" }
-sp-std = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.26" }
-
 
 [lib]
 name = "rmrk"
@@ -38,8 +33,5 @@ std = [
     "scale/std",
     "scale-info/std",
     "ink_prelude/std",
-    "frame-support/std",
-    "sp-std/std",
-    "serde/std"
 ]
 ink-as-dependency = []

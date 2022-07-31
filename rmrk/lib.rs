@@ -4,6 +4,7 @@ use ink_lang as ink;
 use ink_env::Environment;
 use scale::{Decode, Encode};
 use ink_prelude::vec::Vec;
+use ink_env::AccountId;
 
 #[derive(Encode, Decode, Debug)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
@@ -40,13 +41,15 @@ impl ink_env::chain_extension::FromStatusCode for RmrkErrorCode {
 }
 
 pub type CollectionId = u32;
+pub type NftId = u32;
+pub type ResourceId = u32;
 
 /// Collection info.
 #[derive(PartialEq, Debug, Eq, Clone, Default, Encode, Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct CollectionInfo {
 	/// Current bidder and bid price.
-	pub issuer: ink_env::AccountId,
+	pub issuer: AccountId,
 
 	pub metadata: Vec<u8>,
 	pub max: Option<u32>,
@@ -75,18 +78,36 @@ impl Environment for CustomEnvironment {
 pub trait RmrkExt {
     type ErrorCode = RmrkErrorCode;
 
+    // read
     #[ink(extension = 3501, returns_result = false, handle_status = false)]
-    fn next_nft_id(collection_id: u32) -> u32;
+    fn next_nft_id(collection_id: CollectionId) -> NftId;
 
     #[ink(extension = 3502, returns_result = false, handle_status = false)]
-    fn collection_index() -> u32;
-
+    fn collection_index() -> CollectionId;
 
     #[ink(extension = 3503, returns_result = false, handle_status = false)]
-    fn next_resource_id() -> u32;
+    fn next_resource_id() -> ResourceId;
 
     #[ink(extension = 3504)]
-    fn collections(collection_id: u32) -> Result<CollectionInfo, RmrkError>;
+    fn collections(collection_id: CollectionId) -> Result<CollectionInfo, RmrkError>;
+
+    // #[ink(extension = 3505)]
+    // fn nfts(collection_id: u32, nft_id: u32) -> Result<InstanceInfo, RmrkError>;
+
+    // #[ink(extension = 3508)]
+    // fn resources(collection_id: u32, nft_id: u32, resource_id: u32) -> Result<ResourceInfo, RmrkError>;
+
+    // write
+    // #[ink(extension = 3513, returns_result = false)]
+    // fn mint_nft(
+        // owner: AccountId,
+        // collection_id: CollectionId,
+        // royalty_recipient: Option<AccountId>,
+        // royalty: Option<Permill>,
+        // metadata: Vec<u8>,
+        // transferable: bool,
+        // resources: Option<Vec<>>
+    // ); 
 
     #[ink(extension = 3515, returns_result = false)]
     fn create_collection(
@@ -94,9 +115,6 @@ pub trait RmrkExt {
         max: Option<u32>,
         symbol: Vec<u8>,
     );
-
-    // #[ink(extension = 3513)]
-    // fn mint_nft()
 }
 
 #[ink::contract(env = crate::CustomEnvironment)]
@@ -113,28 +131,28 @@ mod rmrk {
         }
 
         #[ink(message)]
-        pub fn next_nft_id(&self, collection_id: u32) -> u32 {
+        pub fn next_nft_id(&self, collection_id: CollectionId) -> u32 {
             self.env().extension().next_nft_id(collection_id)
         }
 
         #[ink(message)]
-        pub fn collection_index(&self) -> u32 {
+        pub fn collection_index(&self) -> CollectionId {
             self.env().extension().collection_index()
         }
 
         #[ink(message)]
-        pub fn next_resource_id(&self) -> u32 {
+        pub fn next_resource_id(&self) -> ResourceId {
             self.env().extension().next_resource_id()
         }
 
         #[ink(message)]
-        pub fn collections(&self, collection_id: u32) -> Result<CollectionInfo, RmrkError> {
+        pub fn collections(&self, collection_id: CollectionId) -> Result<CollectionInfo, RmrkError> {
             self.env().extension().collections(collection_id)
         }
 
         /// write
         #[ink(message)]
-        pub fn create_collection(&mut self, ) -> Result<(), RmrkErrorCode> {
+        pub fn create_collection(&mut self) -> Result<(), RmrkErrorCode> {
             let metadata = "ipfs://ipfs/QmTG9ekqrdMh3dsehLYjC19fUSmPR31Ds2h6Jd7LnMZ9c7";
             let symbol = "ROO";
             let max = Some(1000);
