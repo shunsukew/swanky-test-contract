@@ -6,6 +6,9 @@ use scale::{Decode, Encode};
 use ink_prelude::vec::Vec;
 use ink_env::AccountId;
 
+#[cfg(test)]
+mod mock;
+
 #[derive(Encode, Decode, Debug)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum RmrkErrorCode {
@@ -51,12 +54,18 @@ pub struct CollectionInfo {
 	/// Current bidder and bid price.
 	pub issuer: AccountId,
 
-	pub metadata: Vec<u8>,
+	pub metadata: BoundedVec<u8>,
 	pub max: Option<u32>,
 
-	pub symbol: Vec<u8>,
+	pub symbol: BoundedVec<u8>,
 	pub nfts_count: u32,
 }
+
+#[derive(PartialEq, Debug, Eq, Clone, Default, Encode, Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+pub struct BoundedVec<T>(
+    pub Vec<T>,
+);
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
@@ -88,7 +97,7 @@ pub trait RmrkExt {
     #[ink(extension = 3503, returns_result = false, handle_status = false)]
     fn next_resource_id() -> ResourceId;
 
-    #[ink(extension = 3504)]
+    #[ink(extension = 3504, returns_result = false, handle_status = false)]
     fn collections(collection_id: CollectionId) -> Result<CollectionInfo, RmrkError>;
 
     // #[ink(extension = 3505)]
@@ -167,5 +176,30 @@ mod rmrk {
 
     #[cfg(test)]
     mod tests {
+        use super::*;
+        use ink_env::test;
+
+        fn init_test_contract() -> RmrkTestContract {
+            let test_contract = RmrkTestContract::new();
+
+            mock::register_chain_extension();
+
+            test_contract
+        }
+
+        fn accounts() -> test::DefaultAccounts<CustomEnvironment> {
+            test::default_accounts()
+        }
+
+        fn alice() -> AccountId {
+            accounts().alice
+        }
+
+        fn bob() -> AccountId {
+            accounts().bob
+        }
+
+        // #[ink::test]
+        // fn test_
     }
 }
