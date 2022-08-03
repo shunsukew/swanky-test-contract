@@ -63,6 +63,10 @@ impl Environment for CustomEnvironment {
     type ChainExtension = RmrkExt;
 }
 
+// Storage getter function.
+// If OptionQuery, it will return Option.
+// If ValueQuery, it just returns value.
+
 #[ink::chain_extension]
 pub trait RmrkExt {
     type ErrorCode = RmrkErrorCode;
@@ -77,50 +81,54 @@ pub trait RmrkExt {
     #[ink(extension = 3503, returns_result = false, handle_status = false)]
     fn next_resource_id(collection_id: CollectionId, nft_id: NftId) -> ResourceId;
 
-    #[ink(extension = 3504)]
-    fn collections(collection_id: CollectionId) -> Result<Option<CollectionInfo>, RmrkError>;
+    #[ink(extension = 3504, returns_result = false, handle_status = false)]
+    fn collections(collection_id: CollectionId) -> Option<CollectionInfo>;
 
     // #[ink(extension = 3505)]
-    // fn nfts(collection_id: CollectionId, nft_id: NftId) -> Result<NftInfo, RmrkError>;
+    // fn nfts(collection_id: CollectionId, nft_id: NftId) -> Option<NftInfo>;
 
     #[ink(extension = 3506, returns_result = false, handle_status = false)]
-    fn priorities(collection_id: CollectionId, nft_id: NftId, resource_id: ResourceId) -> u32;
+    fn priorities(
+        collection_id: CollectionId,
+        nft_id: NftId,
+        resource_id: ResourceId
+    ) -> Option<u32>;
 
     // #[ink(extension = 3507)]
     // fn children() -> Result<>;
 
-    #[ink(extension = 3508)]
+    #[ink(extension = 3508, returns_result = false, handle_status = false)]
     fn resources(
         collection_id: u32,
         nft_id: NftId,
         resource_id: ResourceId,
-    ) -> Result<ResourceInfo, RmrkError>;
+    ) -> Option<ResourceInfo>;
 
-    #[ink(extension = 3509)]
+    #[ink(extension = 3509, returns_result = false, handle_status = false)]
     fn equippable_bases(
         collection_id: CollectionId,
         nft_id: NftId,
         base_id: BaseId,
-    ) -> Result<(), RmrkError>;
+    ) -> Option<()>;
 
-    #[ink(extension = 3510)]
+    #[ink(extension = 3510, returns_result = false, handle_status = false)]
     fn equippable_slots(
         collection_id: CollectionId,
         nft_id: NftId,
         resource_id: ResourceId,
         base_id: BaseId,
         slot_id: SlotId,
-    ) -> Result<(), RmrkError>;
+    ) -> Option<()>;
 
-    #[ink(extension = 3511)]
+    #[ink(extension = 3511, returns_result = false, handle_status = false)]
     fn properties(
         collection_id: CollectionId,
         nft_id: NftId,
         resource_id: ResourceId,
-    ) -> Result<Vec<u8>, RmrkError>;
+    ) -> Option<Vec<u8>>;
 
-    #[ink(extension = 3512)]
-    fn lock(collection_id: CollectionId, nft_id: NftId) -> Result<bool, RmrkError>;
+    #[ink(extension = 3512, returns_result = false, handle_status = false)]
+    fn lock(collection_id: CollectionId, nft_id: NftId) -> bool;
 
     // WRITE functions
     #[ink(extension = 3513)]
@@ -168,6 +176,85 @@ pub trait RmrkExt {
         nft_id: NftId,
         new_owner: AccountIdOrCollectionNftTuple,
     ) -> Result<(), RmrkError>;
+
+    #[ink(extension = 3519)]
+    fn accept_nft(
+        collection_id: CollectionId,
+        nft_id: NftId,
+        new_owner: AccountIdOrCollectionNftTuple,
+    ) -> Result<(), RmrkError>;
+
+    #[ink(extension = 3520)]
+    fn reject_nft(
+        collection_id: CollectionId,
+        nft_id: NftId,
+    ) -> Result<(), RmrkError>;
+
+    #[ink(extension = 3521)]
+    fn change_collection_issuer(
+        collection_id: CollectionId,
+        new_issuer: AccountId,
+    ) -> Result<(), RmrkError>;
+
+    #[ink(extension = 3522)]
+    fn set_property(
+        collection_id: CollectionId,
+        maybe_nft_id: Option<NftId>,
+        key: Vec<u8>,
+        value: Vec<u8>,
+    ) -> Result<(), RmrkError>;
+
+    #[ink(extension = 3523)]
+    fn lock_collection(collection_id: CollectionId) -> Result<(), RmrkError>;
+
+    #[ink(extension = 3524)]
+    fn add_basic_resource(
+        collection_id: CollectionId,
+        nft_id: NftId,
+        resource: BasicResource,
+    ) -> Result<(), RmrkError>;
+
+    #[ink(extension = 3525)]
+    fn add_composable_resource(
+        collection_id: CollectionId,
+        nft_id: NftId,
+        resource: ComposableResource,
+    ) -> Result<(), RmrkError>;
+
+    #[ink(extension = 3526)]
+    fn add_slot_resource(
+        collection_id: CollectionId,
+        nft_id: NftId,
+        resource: SlotResource,
+    ) -> Result<(), RmrkError>;
+
+    #[ink(extension = 3527)]
+    fn accept_resource(
+        collection_id: CollectionId,
+        nft_id: NftId,
+        resource_id: ResourceId,
+    ) -> Result<(), RmrkError>;
+
+    #[ink(extension = 3528)]
+    fn remove_resource(
+        collection_id: CollectionId,
+        nft_id: NftId,
+        resource_id: ResourceId,
+    ) -> Result<(), RmrkError>;
+
+    #[ink(extension = 3529)]
+    fn accept_resource_removal(
+        collection_id: CollectionId,
+        nft_id: NftId,
+        resource_id: ResourceId,
+    ) -> Result<(), RmrkError>;
+
+    #[ink(extension = 3530)]
+    fn set_priority(
+        collection_id: CollectionId,
+        nft_id: NftId,
+        priorities: Vec<u8>,
+    ) -> Result<(), RmrkError>;
 }
 
 #[ink::contract(env = crate::CustomEnvironment)]
@@ -205,7 +292,7 @@ mod rmrk {
         pub fn collections(
             &self,
             collection_id: CollectionId,
-        ) -> Result<Option<CollectionInfo>, RmrkError> {
+        ) -> Option<CollectionInfo> {
             self.env().extension().collections(collection_id)
         }
 
@@ -215,7 +302,7 @@ mod rmrk {
             collection_id: CollectionId,
             nft_id: NftId,
             resource_id: ResourceId,
-        ) -> u32 {
+        ) -> Option<u32> {
             self.env()
                 .extension()
                 .priorities(collection_id, nft_id, resource_id)
@@ -227,7 +314,7 @@ mod rmrk {
             collection_id: CollectionId,
             nft_id: NftId,
             resource_id: ResourceId,
-        ) -> Result<ResourceInfo, RmrkError> {
+        ) -> Option<ResourceInfo> {
             self.env()
                 .extension()
                 .resources(collection_id, nft_id, resource_id)
@@ -239,7 +326,7 @@ mod rmrk {
             collection_id: CollectionId,
             nft_id: NftId,
             base_id: BaseId,
-        ) -> Result<(), RmrkError> {
+        ) -> Option<()> {
             self.env()
                 .extension()
                 .equippable_bases(collection_id, nft_id, base_id)
@@ -253,7 +340,7 @@ mod rmrk {
             resource_id: ResourceId,
             base_id: BaseId,
             slot_id: SlotId,
-        ) -> Result<(), RmrkError> {
+        ) -> Option<()> {
             self.env().extension().equippable_slots(
                 collection_id,
                 nft_id,
@@ -269,14 +356,14 @@ mod rmrk {
             collection_id: CollectionId,
             nft_id: NftId,
             resource_id: ResourceId,
-        ) -> Result<Vec<u8>, RmrkError> {
+        ) -> Option<Vec<u8>> {
             self.env()
                 .extension()
                 .properties(collection_id, nft_id, resource_id)
         }
 
         #[ink(message)]
-        pub fn lock(&self, collection_id: CollectionId, nft_id: NftId) -> Result<bool, RmrkError> {
+        pub fn lock(&self, collection_id: CollectionId, nft_id: NftId) -> bool {
             self.env().extension().lock(collection_id, nft_id)
         }
 
@@ -363,6 +450,120 @@ mod rmrk {
             self.env()
                 .extension()
                 .send(collection_id, nft_id, new_owner)
+        }
+
+        #[ink(message)]
+        pub fn accept_nft(
+            &mut self,
+            collection_id: CollectionId,
+            nft_id: NftId,
+            new_owner: AccountIdOrCollectionNftTuple,
+        ) -> Result<(), RmrkError> {
+            self.env().extension().accept_nft(collection_id, nft_id, new_owner)
+        }
+
+        #[ink(message)]
+        pub fn reject_nft(
+            &mut self,
+            collection_id: CollectionId,
+            nft_id: NftId,
+        ) -> Result<(), RmrkError> {
+            self.env().extension().reject_nft(collection_id, nft_id)
+        }
+
+        #[ink(message)]
+        pub fn change_collection_issuer(
+            &mut self,
+            collection_id: CollectionId,
+            new_issuer: AccountId,
+        ) -> Result<(), RmrkError> {
+            self.env().extension().change_collection_issuer(collection_id, new_issuer)
+        }
+
+        #[ink(message)]
+        pub fn set_property(
+            &mut self,
+            collection_id: CollectionId,
+            maybe_nft_id: Option<NftId>,
+            key: Vec<u8>,
+            value: Vec<u8>,
+        ) -> Result<(), RmrkError> {
+            self.env().extension().set_property(collection_id, maybe_nft_id, key, value)
+        }
+
+        #[ink(message)]
+        pub fn lock_collection(&mut self, collection_id: CollectionId) -> Result<(), RmrkError> {
+            self.env().extension().lock_collection(collection_id)
+        }
+
+        #[ink(message)]
+        pub fn add_basic_resource(
+            &mut self,
+            collection_id: CollectionId,
+            nft_id: NftId,
+            resource: BasicResource,
+        ) -> Result<(), RmrkError> {
+            self.env().extension().add_basic_resource(collection_id, nft_id, resource)
+        }
+
+        #[ink(message)]
+        pub fn add_composable_resource(
+            &mut self,
+            collection_id: CollectionId,
+            nft_id: NftId,
+            resource: ComposableResource,
+        ) -> Result<(), RmrkError> {
+            self.env().extension().add_composable_resource(collection_id, nft_id, resource)
+        }
+
+        #[ink(message)]
+        pub fn add_slot_resource(
+            &mut self,
+            collection_id: CollectionId,
+            nft_id: NftId,
+            resource: SlotResource,
+        ) -> Result<(), RmrkError> {
+            self.env().extension().add_slot_resource(collection_id, nft_id, resource)
+        }
+
+        #[ink(message)]
+        pub fn accept_resource(
+            &mut self,
+            collection_id: CollectionId,
+            nft_id: NftId,
+            resource_id: ResourceId,
+        ) -> Result<(), RmrkError> {
+            self.env().extension().accept_resource(collection_id, nft_id, resource_id)
+        }
+
+        #[ink(message)]
+        pub fn remove_resource(
+            &mut self,
+            collection_id: CollectionId,
+            nft_id: NftId,
+            resource_id: ResourceId,
+        ) -> Result<(), RmrkError> {
+            self.env().extension().remove_resource(collection_id, nft_id, resource_id)
+        }
+
+        #[ink(message)]
+        pub fn accept_resource_removal(
+            &mut self,
+            collection_id: CollectionId,
+            nft_id: NftId,
+            resource_id: ResourceId,
+        ) -> Result<(), RmrkError> {
+            self.env().extension().accept_resource_removal(collection_id, nft_id, resource_id)
+        }
+
+        #[ink(message)]
+        pub fn set_priority(
+            &mut self,
+            collection_id: CollectionId,
+            nft_id: NftId,
+            priorities: Vec<u8>,
+        ) -> Result<(), RmrkError> {
+            self.env().extension().set_priority(collection_id, nft_id, priorities)
         }
     }
 
