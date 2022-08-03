@@ -94,8 +94,11 @@ pub trait RmrkExt {
         resource_id: ResourceId
     ) -> Option<u32>;
 
-    // #[ink(extension = 3507)]
-    // fn children() -> Result<>;
+    #[ink(extension = 3507, returns_result = false, handle_status = false)]
+    fn children(
+        parent: (CollectionId, NftId),
+        child: (CollectionId, NftId),
+    ) -> Option<()>;
 
     #[ink(extension = 3508, returns_result = false, handle_status = false)]
     fn resources(
@@ -123,8 +126,8 @@ pub trait RmrkExt {
     #[ink(extension = 3511, returns_result = false, handle_status = false)]
     fn properties(
         collection_id: CollectionId,
-        nft_id: NftId,
-        resource_id: ResourceId,
+        nft_id: Option<NftId>,
+        key: Vec<u8>,
     ) -> Option<Vec<u8>>;
 
     #[ink(extension = 3512, returns_result = false, handle_status = false)]
@@ -309,6 +312,15 @@ mod rmrk {
         }
 
         #[ink(message)]
+        pub fn children(
+            &self,
+            parent: (CollectionId, NftId),
+            child: (CollectionId, NftId),
+        ) -> Option<()> {
+            self.env().extension().children(parent, child)
+        }
+
+        #[ink(message)]
         pub fn resources(
             &self,
             collection_id: CollectionId,
@@ -354,12 +366,12 @@ mod rmrk {
         pub fn properties(
             &self,
             collection_id: CollectionId,
-            nft_id: NftId,
-            resource_id: ResourceId,
+            nft_id: Option<NftId>,
+            key: Vec<u8>,
         ) -> Option<Vec<u8>> {
             self.env()
                 .extension()
-                .properties(collection_id, nft_id, resource_id)
+                .properties(collection_id, nft_id, key)
         }
 
         #[ink(message)]
