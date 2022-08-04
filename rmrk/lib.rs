@@ -417,14 +417,15 @@ mod rmrk {
         }
 
         #[ink(message)]
-        pub fn create_collection(&mut self) -> Result<(), RmrkError> {
-            let metadata = "ipfs://ipfs/QmTG9ekqrdMh3dsehLYjC19fUSmPR31Ds2h6Jd7LnMZ9c7";
-            let symbol = "ROO";
-            let max = Some(1000);
-
+        pub fn create_collection(
+            &mut self,
+            metadata: Vec<u8>,
+            max: Option<u32>,
+            symbol: Vec<u8>,
+        ) -> Result<(), RmrkError> {
             self.env()
                 .extension()
-                .create_collection(metadata.into(), max, symbol.into())
+                .create_collection(metadata, max, symbol)
         }
 
         #[ink(message)]
