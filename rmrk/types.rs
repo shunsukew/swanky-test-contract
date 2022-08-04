@@ -21,24 +21,24 @@ pub struct CollectionInfo {
     pub nfts_count: u32,
 }
 
-// #[derive(PartialEq, Debug, Eq, Clone, Encode, Decode)]
-// #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-// pub struct NftInfo {
-// /// The owner of the NFT, can be either an Account or a tuple (CollectionId, NftId)
-// pub owner: AccountIdOrCollectionNftTuple<AccountId>,
-// /// Royalty (optional)
-// pub royalty: Option<RoyaltyInfo>,
+#[derive(PartialEq, Debug, Eq, Clone, Encode, Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+pub struct NftInfo {
+    /// The owner of the NFT, can be either an Account or a tuple (CollectionId, NftId)
+    pub owner: AccountIdOrCollectionNftTuple,
+    /// Royalty (optional)
+    pub royalty: Option<RoyaltyInfo>,
 
-// /// Arbitrary data about an instance, e.g. IPFS hash
-// pub metadata: Vec<u8>,
+    /// Arbitrary data about an instance, e.g. IPFS hash
+    pub metadata: Vec<u8>,
 
-// /// Equipped state
-// pub equipped: bool,
-// /// Pending state (if sent to NFT)
-// pub pending: bool,
-// /// transferability ( non-transferable is "souldbound" )
-// pub transferable: bool,
-// }
+    /// Equipped state
+    pub equipped: bool,
+    /// Pending state (if sent to NFT)
+    pub pending: bool,
+    /// transferability ( non-transferable is "souldbound" )
+    pub transferable: bool,
+}
 
 #[derive(PartialEq, Debug, Eq, Clone, Encode, Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
@@ -47,14 +47,14 @@ pub enum AccountIdOrCollectionNftTuple {
     CollectionAndNftTuple(CollectionId, NftId),
 }
 
-// #[derive(PartialEq, Debug, Eq, Clone, Encode, Decode)]
-// #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
-// pub struct RoyaltyInfo {
-// /// Recipient (AccountId) of the royalty
-// pub recipient: AccountId,
-// /// Amount (Permill) of the royalty
-// pub amount: Permill,
-// }
+#[derive(PartialEq, Debug, Eq, Clone, Encode, Decode)]
+#[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+pub struct RoyaltyInfo {
+    /// Recipient (AccountId) of the royalty
+    pub recipient: AccountId,
+    /// Amount (Permill) of the royalty
+    pub amount: u32,
+}
 
 #[derive(PartialEq, Debug, Eq, Clone, Encode, Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
