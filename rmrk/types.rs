@@ -7,6 +7,7 @@ pub type NftId = u32;
 pub type ResourceId = u32;
 pub type BaseId = u32;
 pub type SlotId = u32;
+pub type PartId = u32;
 
 #[derive(PartialEq, Debug, Eq, Clone, Encode, Decode)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
@@ -101,7 +102,7 @@ pub struct BasicResource {
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub struct ComposableResource {
     /// If a resource is composed, it will have an array of parts that compose it
-    pub parts: Vec<u8>,
+    pub parts: Vec<PartId>,
 
     /// A Base is uniquely identified by the combination of the word `base`, its minting block
     /// number, and user provided symbol during Base creation, glued by dashes `-`, e.g.
