@@ -63,10 +63,6 @@ impl Environment for CustomEnvironment {
     type ChainExtension = RmrkExt;
 }
 
-// Storage getter function.
-// If OptionQuery, it will return Option.
-// If ValueQuery, it just returns value.
-
 #[ink::chain_extension]
 pub trait RmrkExt {
     type ErrorCode = RmrkErrorCode;
@@ -265,7 +261,7 @@ mod rmrk {
 
         // READ functions
         #[ink(message)]
-        pub fn next_nft_id(&self, collection_id: CollectionId) -> u32 {
+        pub fn next_nft_id(&self, collection_id: CollectionId) -> NftId {
             self.env().extension().next_nft_id(collection_id)
         }
 
