@@ -135,7 +135,7 @@ pub trait RmrkExt {
         royalty: Option<u32>,
         metadata: Vec<u8>,
         transferable: bool,
-        resources: Option<((Vec<u8>, Vec<u8>), u32)>,
+        resources: Option<Vec<ResourceTypes>>,
     ) -> Result<(), RmrkError>;
 
     #[ink(extension = 3514)]
@@ -146,7 +146,7 @@ pub trait RmrkExt {
         royalty: Option<u32>,
         metadata: Vec<u8>,
         transferable: bool,
-        resources: Option<((Vec<u8>, Vec<u8>), u32)>,
+        resources: Option<Vec<ResourceTypes>>,
     ) -> Result<(), RmrkError>;
 
     #[ink(extension = 3515)]
@@ -381,7 +381,7 @@ mod rmrk {
             royalty: Option<u32>,
             metadata: Vec<u8>,
             transferable: bool,
-            resources: Option<((Vec<u8>, Vec<u8>), u32)>,
+            resources: Option<Vec<ResourceTypes>>,
         ) -> Result<(), RmrkError> {
             self.env().extension().mint_nft(
                 owner,
@@ -403,7 +403,7 @@ mod rmrk {
             royalty: Option<u32>,
             metadata: Vec<u8>,
             transferable: bool,
-            resources: Option<((Vec<u8>, Vec<u8>), u32)>,
+            resources: Option<Vec<ResourceTypes>>,
         ) -> Result<(), RmrkError> {
             self.env().extension().mint_nft_directly_to_nft(
                 owner,
