@@ -10,9 +10,6 @@ mod types;
 
 use types::*;
 
-#[cfg(test)]
-mod mock;
-
 #[derive(Encode, Decode, Debug)]
 #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
 pub enum RmrkErrorCode {
@@ -592,6 +589,7 @@ mod rmrk {
     mod tests {
         use super::*;
         use ink_env::test;
+        // mod mock;
 
         fn init_test_contract() -> RmrkTestContract {
             let test_contract = RmrkTestContract::new();
