@@ -3,14 +3,14 @@
 use ink_lang as ink;
 
 #[ink::contract]
-mod attacker_wallet {
+mod attacker {
     #[ink(storage)]
-    pub struct AttackerWallet {
+    pub struct Attacker {
         owner: AccountId,
         flip: bool,
     }
 
-    impl AttackerWallet {
+    impl Attacker {
         #[ink(constructor)]
         pub fn new() -> Self {
             Self { owner: Self::env().caller(), flip: false }
@@ -27,23 +27,13 @@ mod attacker_wallet {
         }
 
         #[ink(message)]
-        pub fn transfer_to(&mut self, to: AccountId, amount: Balance) {
-            assert!(self.env().caller() == self.owner, "only owner can transfer funds");
-            assert!(amount <= self.env().balance(), "insufficient funds!");
-
-            if self.env().transfer(to, amount).is_err() {
-                panic!("requested transfer failed.")
-            }
-        }
-
-        #[ink(message)]
         pub fn get_flip(&self) -> bool {
             self.flip
         }
 
         #[ink(message, payable, selector = _)]
-        pub fn fallback(&mut self) {
-            self.flip = !self.flip;
+        pub fn fallback(&self) {
+            ink_env::debug_println!("Fallback message called");
         }
     }
 
@@ -57,8 +47,8 @@ mod attacker_wallet {
             let accounts = default_accounts();
             set_sender(accounts.alice);
 
-            let attacker_wallet = AttackerWallet::new();
-            assert_eq!(attacker_wallet.get_owner(), accounts.alice);
+            let attacker = Attacker::new();
+            assert_eq!(attacker.get_owner(), accounts.alice);
         }
 
         #[ink::test]
@@ -67,26 +57,10 @@ mod attacker_wallet {
             let contract_balance = 100;
             let accounts = default_accounts();
             set_sender(accounts.alice);
-            let attacker_wallet = create_contract(contract_balance);
+            let attacker = create_contract(contract_balance);
 
             // then
-            assert_eq!(attacker_wallet.get_balance(), 100);
-        }
-
-        #[ink::test]
-        fn transfer_to_works() {
-            // given
-            let contract_balance = 100;
-            let accounts = default_accounts();
-            set_sender(accounts.alice);
-            let mut attacker_wallet = create_contract(contract_balance);
-
-            // when
-            set_balance(accounts.bob, 0);
-            attacker_wallet.transfer_to(accounts.bob, 80);
-
-            // then
-            assert_eq!(get_balance(accounts.bob), 80);
+            assert_eq!(attacker.get_balance(), 100);
         }
 
         fn contract_id() -> AccountId {
@@ -112,11 +86,11 @@ mod attacker_wallet {
                 .expect("Cannot get account balance")
         }
 
-        fn create_contract(initial_balance: Balance) -> AttackerWallet {
+        fn create_contract(initial_balance: Balance) -> Attacker {
             let accounts = default_accounts();
             set_sender(accounts.alice);
             set_balance(contract_id(), initial_balance);
-            AttackerWallet::new()
+            Attacker::new()
         }
     }
 }
